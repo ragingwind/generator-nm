@@ -1,5 +1,5 @@
 'use strict';
-module.exports = function (str, opts) {
+module.exports = <% if (babel) { %>(str, opts) =><% } else { %>function (str, opts)<% } %> {
 	if (typeof str !== 'string') {
 		throw new TypeError('Expected a string');
 	}

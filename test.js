@@ -52,3 +52,20 @@ test.serial('CLI option', async () => {
 	assert.fileContent('package.json', /"bin": "cli.js"/);
 	assert.fileContent('package.json', /"meow"/);
 });
+
+test.serial('generates expected files for ES2015', async () => {
+	helpers.mockPrompt(generator, {
+		moduleName: 'test',
+		githubUsername: 'test',
+		website: 'test.com',
+		cli: true,
+		babel: true
+	});
+
+	await pify(generator.run.bind(generator))();
+
+	assert.file([
+		'src/index.js',
+		'src/cli.js'
+	]);
+});

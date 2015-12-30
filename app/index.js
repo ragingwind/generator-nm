@@ -4,6 +4,7 @@ const normalizeUrl = require('normalize-url');
 const humanizeUrl = require('humanize-url');
 const yeoman = require('yeoman-generator');
 const _s = require('underscore.string');
+const path = require('path');
 
 module.exports = yeoman.Base.extend({
 	init() {
@@ -31,6 +32,11 @@ module.exports = yeoman.Base.extend({
 			message: 'Do you need a CLI?',
 			type: 'confirm',
 			default: false
+		}, {
+			name: 'babel',
+			message: 'Do you want to use ES2015?',
+			type: 'confirm',
+			default: false
 		}], props => {
 			const tpl = {
 				moduleName: props.moduleName,
@@ -41,7 +47,8 @@ module.exports = yeoman.Base.extend({
 				website: props.website,
 				humanizedWebsite: humanizeUrl(props.website),
 				superb: superb(),
-				cli: props.cli
+				cli: props.cli,
+				babel: props.babel
 			};
 
 			const mv = (from, to) => {
@@ -50,13 +57,19 @@ module.exports = yeoman.Base.extend({
 
 			self.fs.copyTpl([
 				`${self.templatePath()}/**`,
+				'!**/index.js',
 				'!**/cli.js'
 			], self.destinationPath(), tpl);
 
+			const cpTplWithBabel = dest => {
+				self.fs.copyTpl(self.templatePath(dest), self.destinationPath(props.babel ? path.join('src', dest) : dest), tpl);
+			};
+
 			if (props.cli) {
-				self.fs.copyTpl(self.templatePath('cli.js'), self.destinationPath('cli.js'), tpl);
+				cpTplWithBabel('cli.js');
 			}
 
+			cpTplWithBabel('index.js');
 			mv('editorconfig', '.editorconfig');
 			mv('gitattributes', '.gitattributes');
 			mv('gitignore', '.gitignore');
